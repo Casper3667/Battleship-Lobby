@@ -4,7 +4,9 @@
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello, World!");
+            TCP_Server Server = new();
+
+            Server.StartServer();
         }
     }
 }
