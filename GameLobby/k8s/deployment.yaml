@@ -1,0 +1,31 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gamelobby
+  labels:
+    app: gamelobby
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gamelobby
+  template:
+    metadata:
+      labels:
+        app: gamelobby
+    spec:
+      containers:
+      - name: gamelobby-info-container
+        image: gamelobby:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 80
+        env:
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: POD_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
