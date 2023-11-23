@@ -14,8 +14,7 @@ namespace GameLobby
     {
         TcpListener server;
         private int IP_Port;
-        //server.Start();
-        //Console.WriteLine("Server started... listening on port 12000");
+
         public TCP_Server(int Port = 12000)
         {
             IP_Port = Port;
@@ -43,39 +42,29 @@ namespace GameLobby
             writer.Flush();
             // Receive and send messages
             StreamReader reader = new(client.GetStream());
-            try
+
+            string message = reader.ReadLine() ?? "";
+            if (!message.IsNullOrEmpty())
             {
-                while (client.Connected)
+                bool valid = Validate_Token.Validate(message); // Ensure their JWT is valid
+                if (!valid)
                 {
-                    string message = reader.ReadLine() ?? "";
-                    if (!message.IsNullOrEmpty())
-                    {
-                        bool valid = Validate_Token.Validate(message);
-                        if (!valid)
-                        {
-                            writer.WriteLine("The authorization token was invalid.");
-                            writer.Flush();
-                            client.Close();
-                        }
-                        else
-                        {
-                            string Server = Assign_Server.Find_Server();
-                            writer.WriteLine(Server);
-                            writer.Flush();
-                            client.Close();
-                        }
-                    }
+                    writer.WriteLine("The authorization token was invalid.");
+                }
+                else
+                {
+                    writer.WriteLine("Success");
+                    writer.Flush();
+                    string Server = Assign_Server.Find_Server(); // Fetch a server
+                    writer.WriteLine(Server);
                 }
             }
-            catch (Exception ex)
+            else
             {
-                Console.WriteLine($"Exception occurred for client {clientId}: {ex.Message}");
+                writer.WriteLine("The authorization token was invalid.");
             }
-            finally
-            {
-                Console.WriteLine($"Client disconnected: {clientId}");
-                client.Dispose();
-            }
+            writer.Flush();
+            client.Close(); // Disconnect the client once done
         }
     }
 }
