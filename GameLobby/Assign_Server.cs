@@ -10,15 +10,21 @@ using System.Net.Http.Json;
 
 namespace GameLobby
 {
-    static internal class Assign_Server
+    public class Assign_Server
     {
-        static Kubernetes? client;
-        static internal string Find_Server()
+        Kubernetes? client;
+        public Assign_Server(){}
+        public Assign_Server(Kubernetes new_client)
+        {
+            client = new_client;
+        }
+
+        public string Find_Server()
         {
             string IP = Kubernetes_Connection();
             return IP;
         }
-        static internal string Kubernetes_Connection()
+        public string Kubernetes_Connection()
         {
             if (client == null)
                 client = MakeKubernetesClient();
@@ -30,16 +36,14 @@ namespace GameLobby
 
             List<ServerIP> podListEven = new();
             List<ServerIP> podListUneven = new();
-            var labelSelector = "game-server-pod";
-            var pods = client.ListNamespacedPod(namespaceName, labelSelector: labelSelector);
+            string labelSelector = "game-server-pod";
+            V1PodList pods = ListNamespacedPod(namespaceName, labelSelector: labelSelector);
             foreach(var pod in pods.Items)
             {
-                var podIP = pod.Status.PodIP;
+                string podIP = pod.Status.PodIP;
 
-                var query = QueryGameServerStatus(podIP);
-                query.GetAwaiter().GetResult();
-                GameServerStatus? status = query.Result;
-                if(status != null)
+                GameServerStatus? status = GetStatus(podIP);
+                if (status != null)
                 {
                     if (IsOdd(status.ActivePlayers))
                         podListUneven.Add(new(status.ActivePlayers, pod.Status.PodIP));
@@ -65,6 +69,20 @@ namespace GameLobby
             return value % 2 != 0;
         }
 
+        public virtual V1PodList ListNamespacedPod(string namespaceParameter, string labelSelector)
+        {
+            return client.ListNamespacedPod(namespaceParameter, labelSelector: labelSelector);
+        }
+
+        public virtual GameServerStatus? GetStatus(string podIP)
+        {
+            Task<GameServerStatus?> query = QueryGameServerStatus(podIP);
+            query.GetAwaiter().GetResult();
+            GameServerStatus? status = query.Result;
+
+            return status;
+        }
+
         public class ServerIP
         {
             public int ActivePlayers { get; set; }
@@ -77,17 +95,17 @@ namespace GameLobby
             }
         }
 
-        static async Task<GameServerStatus?> QueryGameServerStatus(string IP)
+        public async Task<GameServerStatus?> QueryGameServerStatus(string IP)
         {
             try
             {
                 using (var httpClient = new HttpClient())
                 {
-                    var response = await httpClient.GetAsync($"http://{IP}/status");
+                    HttpResponseMessage response = await httpClient.GetAsync($"http://{IP}/status");
 
                     if (response.IsSuccessStatusCode)
                     {
-                        var status = await response.Content.ReadFromJsonAsync<GameServerStatus>();
+                        GameServerStatus? status = await response.Content.ReadFromJsonAsync<GameServerStatus>();
                         return status;
                     }
                 }
@@ -104,12 +122,12 @@ namespace GameLobby
             public int ActivePlayers { get; set; }
         }
 
-        static private Kubernetes MakeKubernetesClient()
+        public Kubernetes MakeKubernetesClient()
         {
             // Load Kubernetes configuration from the default location or a specified file
-            var config = KubernetesClientConfiguration.BuildDefaultConfig();
+            KubernetesClientConfiguration config = KubernetesClientConfiguration.BuildDefaultConfig();
 
-            var client = new Kubernetes(config);
+            Kubernetes client = new Kubernetes(config);
 
             return client;
         }

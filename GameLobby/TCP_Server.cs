@@ -14,7 +14,7 @@ namespace GameLobby
     {
         TcpListener server;
         private int IP_Port;
-
+        Assign_Server serv_Finder = new();
         public TCP_Server(int Port = 12000)
         {
             IP_Port = Port;
@@ -55,7 +55,7 @@ namespace GameLobby
                 {
                     writer.WriteLine("Success");
                     writer.Flush();
-                    string Server = Assign_Server.Find_Server(); // Fetch a server
+                    string Server = serv_Finder.Find_Server(); // Fetch a server
                     writer.WriteLine(Server);
                 }
             }

@@ -41,6 +41,7 @@ namespace GameLobby
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex);
                 return false; // If the validation fails
             }
         }
