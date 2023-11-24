@@ -1,19 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using k8s;
+﻿using k8s;
 using k8s.Models;
-using System.Net.Http;
 using System.Net.Http.Json;
 
 namespace GameLobby
 {
     public class Assign_Server
     {
-        Kubernetes? client;
-        public Assign_Server(){}
+        private Kubernetes? client;
+        public Assign_Server() { }
         public Assign_Server(Kubernetes new_client)
         {
             client = new_client;
@@ -38,7 +32,7 @@ namespace GameLobby
             List<ServerIP> podListUneven = new();
             string labelSelector = "game-server-pod";
             V1PodList pods = ListNamespacedPod(namespaceName, labelSelector: labelSelector);
-            foreach(var pod in pods.Items)
+            foreach (var pod in pods.Items)
             {
                 string podIP = pod.Status.PodIP;
 
@@ -52,7 +46,7 @@ namespace GameLobby
                 }
             }
             List<ServerIP> sortedList;
-            if(podListUneven.Count > 0)
+            if (podListUneven.Count > 0)
                 sortedList = podListUneven.OrderBy(pod => pod.ActivePlayers).ToList();
             else
                 sortedList = podListEven.OrderBy(pod => pod.ActivePlayers).ToList();
@@ -64,7 +58,7 @@ namespace GameLobby
             return GameServerIP;
         }
 
-        private static bool IsOdd (int value)
+        private static bool IsOdd(int value)
         {
             return value % 2 != 0;
         }
@@ -99,15 +93,13 @@ namespace GameLobby
         {
             try
             {
-                using (var httpClient = new HttpClient())
-                {
-                    HttpResponseMessage response = await httpClient.GetAsync($"http://{IP}/status");
+                using var httpClient = new HttpClient();
+                HttpResponseMessage response = await httpClient.GetAsync($"http://{IP}/status");
 
-                    if (response.IsSuccessStatusCode)
-                    {
-                        GameServerStatus? status = await response.Content.ReadFromJsonAsync<GameServerStatus>();
-                        return status;
-                    }
+                if (response.IsSuccessStatusCode)
+                {
+                    GameServerStatus? status = await response.Content.ReadFromJsonAsync<GameServerStatus>();
+                    return status;
                 }
             }
             catch (Exception ex)
@@ -127,7 +119,7 @@ namespace GameLobby
             // Load Kubernetes configuration from the default location or a specified file
             KubernetesClientConfiguration config = KubernetesClientConfiguration.BuildDefaultConfig();
 
-            Kubernetes client = new Kubernetes(config);
+            Kubernetes client = new(config);
 
             return client;
         }

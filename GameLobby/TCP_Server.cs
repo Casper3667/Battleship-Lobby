@@ -1,20 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.IdentityModel.Tokens;
 using System.Net;
 using System.Net.Sockets;
-using System.Security.Cryptography;
-using Microsoft.IdentityModel.Tokens;
 
 namespace GameLobby
 {
     internal class TCP_Server
     {
-        TcpListener server;
-        private int IP_Port;
-        Assign_Server serv_Finder = new();
+        private readonly TcpListener server;
+        private readonly int IP_Port;
+        private readonly Assign_Server serv_Finder = new();
         public TCP_Server(int Port = 12000)
         {
             IP_Port = Port;

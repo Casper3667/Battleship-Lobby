@@ -1,24 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
-using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace GameLobby
 {
-    static public class Validate_Token
+    public static class Validate_Token
     {
-        static public readonly string key = "Thesecretstomakeatokenkeyistodothis";
-        static public bool Validate(string JWTToken)
+        public static readonly string key = "Thesecretstomakeatokenkeyistodothis";
+        public static bool Validate(string JWTToken)
         {
             bool IsValid = ValidateJwt(JWTToken, key);
 
             return IsValid;
         }
 
-        static bool ValidateJwt(string jwtToken, string secretKey)
+        private static bool ValidateJwt(string jwtToken, string secretKey)
         {
             try
             {
@@ -31,7 +27,7 @@ namespace GameLobby
                     ValidateAudience = false,
                     RequireExpirationTime = true,
                     ValidateLifetime = true,
-                    ClockSkew = TimeSpan.Zero 
+                    ClockSkew = TimeSpan.Zero
                 };
 
                 // Validate the JWT

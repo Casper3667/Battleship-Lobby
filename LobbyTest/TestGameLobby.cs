@@ -1,11 +1,11 @@
+using GameLobby;
+using k8s;
+using k8s.Models;
 using Microsoft.IdentityModel.Tokens;
+using Moq;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using GameLobby;
-using k8s.Models;
-using k8s;
-using Moq;
 using static GameLobby.Assign_Server;
 
 namespace LobbyTest
@@ -33,11 +33,11 @@ namespace LobbyTest
                 new Claim(ClaimTypes.Name, username)
             };
 
-            SymmetricSecurityKey key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(keypass));
+            SymmetricSecurityKey key = new(Encoding.UTF8.GetBytes(keypass));
 
-            SigningCredentials creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
+            SigningCredentials creds = new(key, SecurityAlgorithms.HmacSha256Signature);
 
-            JwtSecurityToken token = new JwtSecurityToken(
+            JwtSecurityToken token = new(
                 claims: claims,
                 expires: DateTime.Now.AddDays(1),
                 signingCredentials: creds
@@ -52,15 +52,15 @@ namespace LobbyTest
         public void Test_GetServer()
         {
             string expectedResult = "1.2.3.4";
-            Mock<Kubernetes> kubernetesClientMock = new Mock<Kubernetes>();
-            Mock<Assign_Server> assignServerMock = new Mock<Assign_Server>();
+            Mock<Kubernetes> kubernetesClientMock = new();
+            Mock<Assign_Server> assignServerMock = new();
             assignServerMock.Setup(a => a.ListNamespacedPod(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(new V1PodList
                 {
                     Items = new List<V1Pod>
                     {
-                    new V1Pod { Status = new V1PodStatus { PodIP = "1.2.3.4" } },
-                    new V1Pod { Status = new V1PodStatus { PodIP = "5.6.7.8" } }
+                    new() { Status = new V1PodStatus { PodIP = "1.2.3.4" } },
+                    new() { Status = new V1PodStatus { PodIP = "5.6.7.8" } }
                     }
                 });
             GameServerStatus statusthing = new();
