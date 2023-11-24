@@ -1,7 +1,7 @@
 ﻿apiVersion: v1
 kind: Service
 metadata:
-  name: gamelobby-info-service
+  name: gamelobby-service
 spec:
   selector:
     app: gamelobby

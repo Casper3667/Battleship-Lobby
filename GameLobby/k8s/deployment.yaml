@@ -15,7 +15,7 @@ spec:
         app: gamelobby
     spec:
       containers:
-      - name: gamelobby-info-container
+      - name: gamelobby-container
         image: gamelobby:latest
         imagePullPolicy: Never
         ports:
