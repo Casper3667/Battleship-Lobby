@@ -1,13 +1,6 @@
-﻿using k8s.Models;
-using k8s;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using k8s;
+using k8s.Models;
 using System.Net.Http.Json;
-using System.Collections;
-using YamlDotNet.Core.Tokens;
 
 namespace GameLobby.Kube
 {
@@ -17,19 +10,19 @@ namespace GameLobby.Kube
         public readonly string _namespaceName;
         public readonly string _labelSelector;
         public readonly int maxPlayer = 2;
-        public static readonly object lockObject = new object();
-        public Dictionary<string, string> labels = new Dictionary<string, string>
-            {
+        public static readonly object lockObject = new();
+        public Dictionary<string, string> labels = new()
+        {
                 {"app", "your-game-app"},
                 {"env", "production"},
                 {"gameserverhost", "gameserverhost"}
             };
         public List<ServerIP>? emptyPods;
         public List<ServerIP>? totalPods;
-        public KubernetesClientConfiguration config = 
+        public KubernetesClientConfiguration config =
             KubernetesClientConfiguration.BuildDefaultConfig();
 
-        public FindServers(Kubernetes client, string namespaceName = "default", 
+        public FindServers(Kubernetes client, string namespaceName = "default",
             string labelSelector = "gameserverhost")
         {
             _client = client;
@@ -41,7 +34,7 @@ namespace GameLobby.Kube
         /// <summary>
         /// // !!DO NOT USE!! This purely exists to satisfy test mock issues. 
         /// </summary>
-        protected FindServers() 
+        protected FindServers()
         {
         }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -54,7 +47,7 @@ namespace GameLobby.Kube
         {
             // Ensures only one thread is finding a server at once, to prevent issues.
             // Inefficient if there is a lot of threads/clients.
-            lock (lockObject) 
+            lock (lockObject)
             {
                 Task<string> query = SortServers();
                 query.GetAwaiter().GetResult();
@@ -71,24 +64,24 @@ namespace GameLobby.Kube
         public virtual async Task<string> SortServers()
         {
             // Get a list of pods
-            V1PodList query = await ListPodsAsync(); 
+            V1PodList query = await ListPodsAsync();
 
             // Reset the lists
-            emptyPods = new(); 
+            emptyPods = new();
             totalPods = new();
 
-            foreach (var pod in query.Items)
+            foreach (V1Pod pod in query.Items)
             {
                 string podIP = pod.Status.PodIP;
                 int connectedClients = await GetConnectedClientsCount(podIP);
 
                 // We primarily want not-full pods.
-                if (connectedClients >= 0 && connectedClients < maxPlayer) 
+                if (connectedClients >= 0 && connectedClients < maxPlayer)
                 {
                     emptyPods.Add(new ServerIP(connectedClients, podIP));
                 }
                 // Primarily future-proofing in case we want all pods for one reason or another.
-                totalPods.Add(new ServerIP(connectedClients, podIP)); 
+                totalPods.Add(new ServerIP(connectedClients, podIP));
             }
             // If there are no empty pods, we start a new one for the client.
             if (emptyPods.Count == 0)
@@ -108,7 +101,7 @@ namespace GameLobby.Kube
         /// </summary>
         public async Task ScalePods()
         {
-            var newPod = new V1Pod()
+            V1Pod newPod = new()
             {
                 ApiVersion = "v1",
                 Kind = "Pod",
@@ -130,11 +123,11 @@ namespace GameLobby.Kube
                     }
                 }
             };
-            var createdPod = await _client.CreateNamespacedPodAsync(newPod, "default");
+            V1Pod createdPod = await _client.CreateNamespacedPodAsync(newPod, "default");
 
             Console.WriteLine($"Pod {createdPod.Metadata.Name} created.");
 
-            if(createdPod.Status.PodIP != null && emptyPods != null)
+            if (createdPod.Status.PodIP != null && emptyPods != null)
                 emptyPods.Add(new ServerIP(0, createdPod.Status.PodIP));
             else
                 throw new Exception("The new pod IP is null or it attempted to add the new pod to a null list.");
@@ -157,7 +150,7 @@ namespace GameLobby.Kube
         {
             try
             {
-                using var httpClient = new HttpClient();
+                using HttpClient httpClient = new();
                 HttpResponseMessage response = await httpClient.GetAsync($"http://{podIP}/status");
 
                 if (response.IsSuccessStatusCode)

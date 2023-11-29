@@ -1,12 +1,7 @@
 ﻿using GameLobby.Kube;
-using k8s.Models;
 using k8s;
+using k8s.Models;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LobbyTest
 {
@@ -24,7 +19,7 @@ namespace LobbyTest
         /// <summary>
         /// Set up the basic components for testing.
         /// </summary>
-        [SetUp] 
+        [SetUp]
         public void Setup()
         {
             _kubernetesClientMock = new Mock<Kubernetes>(KubernetesClientConfiguration.BuildDefaultConfig());
@@ -35,7 +30,7 @@ namespace LobbyTest
         /// <summary>
         /// Check it gives a result back.
         /// </summary>
-        [Test] 
+        [Test]
         public void Test_LocateIP_Success()
         {
             // Arrange
@@ -90,7 +85,7 @@ namespace LobbyTest
         /// <summary>
         /// Tests that it fails, given it is not a real server.
         /// </summary>
-        [Test] 
+        [Test]
         public async Task Test_GetConnectedClientsCount_Success()
         {
             // Arrange
