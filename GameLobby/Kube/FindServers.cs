@@ -107,7 +107,7 @@ namespace GameLobby.Kube
                 Kind = "Pod",
                 Metadata = new V1ObjectMeta()
                 {
-                    Name = "new-pod",
+                    Name = "GameServer-Pod",
                     Labels = labels
                 },
                 Spec = new V1PodSpec()
@@ -130,7 +130,7 @@ namespace GameLobby.Kube
             if (createdPod.Status.PodIP != null && emptyPods != null)
                 emptyPods.Add(new ServerIP(0, createdPod.Status.PodIP));
             else
-                throw new Exception("The new pod IP is null or it attempted to add the new pod to a null list.");
+                Console.Error.Write("WARNING: The new pod IP is null or it attempted to add the new pod to a null list.");
         }
 
         /// <summary>
