@@ -18,8 +18,8 @@ namespace GameLobby
         {
             try
             {
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var validationParameters = new TokenValidationParameters
+                JwtSecurityTokenHandler tokenHandler = new();
+                TokenValidationParameters validationParameters = new()
                 {
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
@@ -31,7 +31,7 @@ namespace GameLobby
                 };
 
                 // Validate the JWT
-                tokenHandler.ValidateToken(jwtToken, validationParameters, out var validatedToken);
+                tokenHandler.ValidateToken(jwtToken, validationParameters, out SecurityToken validatedToken);
 
                 return true; // If the validation is successful
             }

@@ -1,4 +1,6 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using GameLobby.Kube;
+using k8s;
+using Microsoft.IdentityModel.Tokens;
 using System.Net;
 using System.Net.Sockets;
 
@@ -8,11 +10,19 @@ namespace GameLobby
     {
         private readonly TcpListener server;
         private readonly int IP_Port;
-        private readonly Assign_Server serv_Finder = new();
+        //private readonly Assign_Server serv_Finder = new();
+        private readonly FindServers serv_Finder;
         public TCP_Server(int Port = 12000)
         {
             IP_Port = Port;
             server = new(IPAddress.Any, IP_Port);
+
+            // Load Kubernetes configuration from the default location or a specified file
+            KubernetesClientConfiguration config = KubernetesClientConfiguration.BuildDefaultConfig();
+
+            Kubernetes client = new(config);
+
+            serv_Finder = new(client, "default");
         }
 
         public void StartServer()
@@ -49,7 +59,7 @@ namespace GameLobby
                 {
                     writer.WriteLine("Success");
                     writer.Flush();
-                    string Server = serv_Finder.Find_Server(); // Fetch a server
+                    string Server = serv_Finder.locateIP(); // Fetch a server
                     writer.WriteLine(Server);
                 }
             }
