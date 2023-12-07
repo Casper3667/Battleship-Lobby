@@ -2,6 +2,7 @@
 
 FROM mcr.microsoft.com/dotnet/runtime:6.0 AS base
 WORKDIR /app
+COPY GameLobby/Settings/AppSettings.JSON /Settings/AppSettings.JSON
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 ARG BUILD_CONFIGURATION=Release
