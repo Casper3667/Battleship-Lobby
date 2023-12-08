@@ -19,7 +19,7 @@ spec:
         image: gamelobby:latest
         imagePullPolicy: Never
         ports:
-        - containerPort: 80
+        - containerPort: 12000
         env:
           - name: POD_NAME
             valueFrom:
