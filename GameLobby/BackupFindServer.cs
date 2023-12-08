@@ -37,7 +37,7 @@ namespace GameLobby
             string IP = settings.BackupIP + ":" + settings.BackupHealthcheckPort;
             int count=await GetConnectedClientsCount(IP);
             string? result;
-            if(count<2)
+            if(count>=0 && count<2)
             {
                 var adress = new BackupServerAdress(settings.BackupIP, settings.BackupPort);
                  result=JsonSerializer.Serialize(adress);
