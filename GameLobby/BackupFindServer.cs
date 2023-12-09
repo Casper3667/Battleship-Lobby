@@ -1,4 +1,5 @@
-﻿using System;
+﻿using k8s.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Json;
@@ -35,6 +36,8 @@ namespace GameLobby
         {
             var settings = Settings.Settings.AppSettings;
             string IP = settings.BackupIP + ":" + settings.BackupHealthcheckPort;
+            string webadress = $"http://{IP}/ServerHealth";
+            //Console.WriteLine("Backup Server Finder> Looking at Adress: " + webadress);
             int count=await GetConnectedClientsCount(IP);
             string? result;
             if(count>=0 && count<2)
@@ -61,11 +64,13 @@ namespace GameLobby
             try
             {
                 using HttpClient httpClient = new();
-                HttpResponseMessage response = await httpClient.GetAsync($"http://{podIP}/status");
+                HttpResponseMessage response = await httpClient.GetAsync($"http://{podIP}/ServerHealth");
 
+                //Console.WriteLine("Backup Server Finder>Response Status Code: " + response.StatusCode);    
                 if (response.IsSuccessStatusCode)
                 {
                     int status = await response.Content.ReadFromJsonAsync<int>();
+                    //Console.WriteLine("Sucsess Status= " + status);
                     return status;
                 }
             }
