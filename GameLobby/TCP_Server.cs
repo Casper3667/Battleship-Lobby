@@ -59,8 +59,23 @@ namespace GameLobby
                 {
                     writer.WriteLine("Success");
                     writer.Flush();
-                    string Server = serv_Finder.locateIP(); // Fetch a server
-                    writer.WriteLine(Server);
+                    if(Settings.Settings.AppSettings.UseBackupPlan==false)
+                    {
+                        string Server = serv_Finder.locateIP(); // Fetch a server
+                        writer.WriteLine(Server);
+                    }
+                    else
+                    {
+                        string? Server= BackupFindServer.GetServerAdress();
+                        if(Server!=null)
+                        {
+                            writer.WriteLine(Server);
+                        }
+                        else
+                        {
+                            writer.WriteLine("NoFreeServers");
+                        }
+                    }
                 }
             }
             else
